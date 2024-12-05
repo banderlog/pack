@@ -72,7 +72,7 @@ Below is the output from the above command:
     ...
 
 
-NOTE: You can reduce the number of outliers displayed by including the --hiderare flag which will not show any items with occurrence of less than 1%.
+NOTE: You can reduce the number of outliers displayed by including the --hiderare flag which will not show any items with occurrence of less than number set in --rare_threshold flag (1% by default).
 
 Here is what we can immediately learn from the above list:
 
