@@ -1,19 +1,30 @@
 Password Analysis and Cracking Kit by Peter Kacherginsky (iphelix)
 ==================================================================
 
-PACK (Password Analysis and Cracking Toolkit) is a collection of utilities developed to aid in analysis of password lists in order to enhance password cracking through pattern detection of masks, rules, character-sets and other password characteristics. The toolkit generates valid input files for Hashcat family of password crackers.
+PACK (Password Analysis and Cracking Toolkit) is a collection of utilities developed to aid in analysis of password lists in order to enhance password cracking through pattern detection of masks, rules, character-sets and other password characteristics.
+The toolkit generates valid input files for Hashcat family of password crackers.
 
 NOTE: The toolkit itself is not able to crack passwords, but instead designed to make operation of password crackers more efficient.
+
+*With fixes from Chick3nman and Hydraze*
 
 Selecting passwords lists for analysis
 ======================================
 
-Before we can begin using the toolkit we must establish a selection criteria of password lists. Since we are looking to analyze the way people create their passwords, we must obtain as large of a sample of leaked passwords as possible. One such excellent list is based on RockYou.com compromise. This list both provides large and diverse enough collection that provides a good results for common passwords used by similar sites (e.g. social networking). The analysis obtained from this list may not work for organizations with specific password policies. As such, selecting sample input should be as close to your target as possible. In addition, try to avoid obtaining lists based on already cracked passwords as it will generate statistics bias of rules and masks used by individual(s) cracking the list and not actual users.
+Before we can begin using the toolkit we must establish a selection criteria of password lists.
+Since we are looking to analyze the way people create their passwords, we must obtain as large of a sample of leaked passwords as possible.
+One such excellent list is based on RockYou.com compromise.
+This list both provides large and diverse enough collection that provides a good results for common passwords used by similar sites (e.g. social networking).
+The analysis obtained from this list may not work for organizations with specific password policies.
+As such, selecting sample input should be as close to your target as possible.
+In addition, try to avoid obtaining lists based on already cracked passwords as it will generate statistics bias of rules and masks used by individual(s) cracking the list and not actual users.
 
 StatsGen
 =======================================
 
-The most basic analysis that you can perform is simply obtaining most common length, character-set and other characteristics of passwords in the provided list. In the example below, we will use 'rockyou.txt' containing approximately 14 million passwords. Launch `statsgen.py` with the following command line:
+The most basic analysis that you can perform is simply obtaining most common length, character-set and other characteristics of passwords in the provided list.
+In the example below, we will use 'rockyou.txt' containing approximately 14 million passwords.
+Launch `statsgen.py` with the following command line:
 
     $ python statsgen.py rockyou.txt
 
@@ -71,8 +82,7 @@ Below is the output from the above command:
     [+]            ?d?d?d?d?d?d?d: 03% (487429)
     ...
 
-
-NOTE: You can reduce the number of outliers displayed by including the --hiderare flag which will not show any items with occurrence of less than number set in --rare_threshold flag (1% by default).
+NOTE: You can reduce the number of outliers displayed by including the `--hiderare` flag which will not show any items with occurrence of less than number set in `--rare_threshold` flag (1% by default).
 
 Here is what we can immediately learn from the above list:
 
@@ -88,7 +98,9 @@ The last section, "Advanced Masks", contains most frequently occurring masks usi
     ?d - a single digit
     ?s - a single special character
 
-For example, the very first mask, "?l?l?l?l?l?l?l?l", will match all of the lowercase alpha passwords. Given the sample size you will be able to crack approximately 4% of passwords. However, after generating the initial output, you may be interested in using filters to narrow down on password data.
+For example, the very first mask, "?l?l?l?l?l?l?l?l", will match all of the lowercase alpha passwords.
+Given the sample size you will be able to crack approximately 4% of passwords.
+However, after generating the initial output, you may be interested in using filters to narrow down on password data.
 
 Using filters
 -------------
@@ -134,7 +146,12 @@ Let's see how RockYou users tend to select their passwords using the "stringdigi
     [+]              ?l?l?l?l?d?d: 04% (215074)
     ...
 
-The very top of the output specifies what percentage of total passwords was analyzed. In this case, by cracking only passwords matching the "stringdigit" mask it is only possible to recover about 37% of the total set just as was displayed in the original output. Next, it appears that only 11% of this password type use anything other than lowercase. So it would be smart to concentrate on only lowercase strings matching this mask. At last, in the "Advanced Mask" section we can see that the majority of "stringdigit" passwords consist of a string with two or four digits following it. With the information gained from the above output, we can begin creating a mental image of target users' password generation patterns.
+The very top of the output specifies what percentage of total passwords was analyzed.
+In this case, by cracking only passwords matching the "stringdigit" mask it is only possible to recover about 37% of the total set just as was displayed in the original output.
+Next, it appears that only 11% of this password type use anything other than lowercase.
+So it would be smart to concentrate on only lowercase strings matching this mask.
+At last, in the "Advanced Mask" section we can see that the majority of "stringdigit" passwords consist of a string with two or four digits following it.
+With the information gained from the above output, we can begin creating a mental image of target users' password generation patterns.
 
 There are a few other filters available for password length, mask, and character sets:
 
@@ -155,12 +172,15 @@ While the "Advanced Mask" section only displays patterns matching greater than 1
 
     $ python statsgen.py rockyou.txt -o rockyou.masks
 
-All of the password masks and their frequencies will be saved into the specified file in the CSV format. Naturally, you can provide filters to only generate masks file matching specified parameters. The output file can be used as an input to MaskGen tool covered in the next section.
+All of the password masks and their frequencies will be saved into the specified file in the CSV format.
+Naturally, you can provide filters to only generate masks file matching specified parameters.
+The output file can be used as an input to MaskGen tool covered in the next section.
 
 MaskGen
 ==================
 
-MaskGen allows you to craft pattern-based mask attacks for input into Hashcat family of password crackers. The tool uses output produced by statsgen above with the '-o' flag in order to produce the most optimal mask attack sorted by mask complexity, mask occurrence or ratio of the two (optimal index).
+MaskGen allows you to craft pattern-based mask attacks for input into Hashcat family of password crackers.
+The tool uses output produced by statsgen above with the '-o' flag in order to produce the most optimal mask attack sorted by mask complexity, mask occurrence or ratio of the two (optimal index).
 
 Let's run MaskGen with only StatGen's output as an argument:
 
@@ -194,7 +214,8 @@ There are several pieces of information that you should observe:
 Specifying target time
 ----------------------
 
-Since you are usually limited in time to perform and craft attacks, maskgen allows you to specify how much time you have to perform mask attacks and will generate the most optimal collection of masks based on the sorting mode. Let's play a bit with different sorting modes and target times:
+Since you are usually limited in time to perform and craft attacks, maskgen allows you to specify how much time you have to perform mask attacks and will generate the most optimal collection of masks based on the sorting mode.
+Let's play a bit with different sorting modes and target times:
 
     $ python maskgen.py rockyou.masks --targettime 600 --optindex -q
     [*] Analyzing masks in [rockyou.masks]
@@ -228,7 +249,9 @@ Since you are usually limited in time to perform and craft attacks, maskgen allo
         Masks coverage:  16% (2390986/14344390)
         Masks runtime:   1:34:05
 
-All of the above runs have target time of 600 seconds (or 10 minutes) with different sorting modes. Based on our experiments, masks generated using OptIndex sorting mode can crack 56% of RockYou passwords in about 10 minutes. At the same time masks generated using Occurrence sorting mode not only have pretty weak coverage of only 16%, but also exceeded specified target time by more than an hour.
+All of the above runs have target time of 600 seconds (or 10 minutes) with different sorting modes.
+Based on our experiments, masks generated using OptIndex sorting mode can crack 56% of RockYou passwords in about 10 minutes.
+At the same time masks generated using Occurrence sorting mode not only have pretty weak coverage of only 16%, but also exceeded specified target time by more than an hour.
 
 NOTE: Masks sorted by complexity can be very effective when attacking policy based lists.
 
@@ -268,12 +291,16 @@ Displayed masks follow a pretty intuitive format:
        \_ mask length                     \_ mask occurrence
 
 
-In the above sample you can see some of the logic that goes into mask generation. For example, while '?s?l?l?l?l?l?l?s' mask has one of the longest runtimes in the sample (5 minutes), it still has higher priority because of its relatively higher occurrence to '?l?l?l?l?d?d?d?d?s'. At the same time, while '?l?d?s?l?l?d?d' has pretty low coverage it still gets a higher priority than other masks because as only a six character mask it executes very quickly.
+In the above sample you can see some of the logic that goes into mask generation.
+For example, while '?s?l?l?l?l?l?l?s' mask has one of the longest runtimes in the sample (5 minutes), it still has higher priority because of its relatively higher occurrence to '?l?l?l?l?d?d?d?d?s'.
+At the same time, while '?l?d?s?l?l?d?d' has pretty low coverage it still gets a higher priority than other masks because as only a six character mask it executes very quickly.
 
 Specifying mask filters
 -----------------------
 
-You can further optimize your generated mask attacks by using filters. For example, you may have sufficiently powerful hardware where you can simple bruteforce all of the passwords up to 8 characters. In this case, you can generate masks only greater than 8 characters using the --minlength flag as follows:
+You can further optimize your generated mask attacks by using filters.
+For example, you may have sufficiently powerful hardware where you can simple bruteforce all of the passwords up to 8 characters.
+In this case, you can generate masks only greater than 8 characters using the --minlength flag as follows:
 
     $ python maskgen.py rockyou.masks --targettime 43200 --optindex -q --minlength 8
     [*] Analyzing masks in [rockyou.masks]
@@ -324,7 +351,9 @@ This will produce 'rockyou.hcmask' file which can be directly used by Hashcat su
 Checking mask coverage
 ----------------------
 
-It is often useful to see how well generated masks perform against already cracked lists. Maskgen can compare a collection of masks against others to see how well they would perform if masks from one password list would be attempted against another. Let's compare how well masks generated from RockYou list will perform against another compromised list such as Gawker:
+It is often useful to see how well generated masks perform against already cracked lists.
+Maskgen can compare a collection of masks against others to see how well they would perform if masks from one password list would be attempted against another.
+Let's compare how well masks generated from RockYou list will perform against another compromised list such as Gawker:
 
     $ python statsgen.py ../PACK-0.0.3/archive/gawker.dic -o gawker.masks
 
@@ -337,7 +366,8 @@ It is often useful to see how well generated masks perform against already crack
         Masks coverage:  96% (1048889/1084394)
         Masks runtime:   16:25:44
 
-Using the '--checkmasksfile' parameter we attempted to run masks inside 'rockyou.hcmask' file generated earlier against masks from a sample leaked list 'gawker.masks'. This results in a good 96% coverage where 1775 of the 3970 total generated RockYou-based masks matched masks in Gawker list.
+Using the '--checkmasksfile' parameter we attempted to run masks inside 'rockyou.hcmask' file generated earlier against masks from a sample leaked list 'gawker.masks'.
+This results in a good 96% coverage where 1775 of the 3970 total generated RockYou-based masks matched masks in Gawker list.
 
 It is also possible to see the coverage of one or more masks by specifying them directly on the command-line as follows:
 
@@ -372,7 +402,9 @@ Using the '--pps' parameter to match you actual performance makes target time mo
 PolicyGen
 =========
 
-A lot of the mask and dictionary attacks will fail in the corporate environment with minimum password complexity requirements. Instead of resorting to a pure bruteforcing attack, we can leverage known or guessed password complexity rules to avoid trying password candidates that are not compliant with the policy or inversely only audit for noncompliant passwords. Using PolicyGen, you will be able to generate a collection of masks following the password complexity in order to significantly reduce the cracking time. 
+A lot of the mask and dictionary attacks will fail in the corporate environment with minimum password complexity requirements.
+Instead of resorting to a pure bruteforcing attack, we can leverage known or guessed password complexity rules to avoid trying password candidates that are not compliant with the policy or inversely only audit for noncompliant passwords.
+Using PolicyGen, you will be able to generate a collection of masks following the password complexity in order to significantly reduce the cracking time. 
 
 Below is a sample session where we generate all valid password masks for an environment requiring at least one digit, one upper, and one special characters.
 
@@ -437,12 +469,14 @@ Let's see some of the non-compliant masks generated above using the '--showmasks
     [*] Total Masks:  65536 Time: 76 days, 18:50:04
     [*] Policy Masks: 24712 Time: 41 days, 18:16:55
 
-As you can see all of the masks have at least one missing password complexity requirement. Interestingly with fewer generated masks it takes longer to attack because of long running masks like '?s?s?s?s?s?s?s?s'.
+As you can see all of the masks have at least one missing password complexity requirement.
+Interestingly with fewer generated masks it takes longer to attack because of long running masks like '?s?s?s?s?s?s?s?s'.
 
 Specifying maximum complexity
 -----------------------------
 
-It is also possible to specify maximum password complexity using --maxlower, --maxupper, --maxdigit and --maxspecial flags in order to fine-tune you attack. For example, below is a sample site which enforces password policy but does not allow any special characters:
+It is also possible to specify maximum password complexity using --maxlower, --maxupper, --maxdigit and --maxspecial flags in order to fine-tune you attack.
+For example, below is a sample site which enforces password policy but does not allow any special characters:
 
     $ python policygen.py --minlength 8 --maxlength 8 --minlower 1 --minupper 1 --mindigit 1 --maxspecial 0 -o maxcomplexity.hcmask -q
     [*] Saving generated masks to [maxcomplexity.hcmask]
@@ -459,20 +493,26 @@ It is also possible to specify maximum password complexity using --maxlower, --m
 Rules Analysis
 ==================
 
-`rulegen.py` implements password analysis and rule generation for the Hashcat password cracker as described in the [Automatic Password Rule Analysis and Generation](http://thesprawl.org/research/automatic-password-rule-analysis-generation/) paper. Please review this document for detailed discussion on the theory of rule analysis and generation.
+`rulegen.py` implements password analysis and rule generation for the Hashcat password cracker as described in the [Automatic Password Rule Analysis and Generation](http://thesprawl.org/research/automatic-password-rule-analysis-generation/) paper.
+Please review this document for detailed discussion on the theory of rule analysis and generation.
 
-Reversing source words and word mangling rules from already cracked passwords can be very effective in performing attacks against still encrypted hashes. By continuously recycling/expanding generated rules and words you may be able to crack a greater number of passwords.
+Reversing source words and word mangling rules from already cracked passwords can be very effective in performing attacks against still encrypted hashes.
+By continuously recycling/expanding generated rules and words you may be able to crack a greater number of passwords.
 
 Prerequisites
 -----------------
-There are several prerequisites for the effective use of `rulegen.py`. The tool utilizes Enchant spell-checking library to interface with a number of spell-checking engines such as Aspell, MySpell, etc. You must install these tools prior to use. It is also critical to install dictionaries for whatever spell-checking engine you end up using (alternatively it is possible to use a custom wordlist). At last, I have bundled PyEnchant for convenience which should interface directly with Enchant's shared libraries; however, should there be any issues, simply remove the bundled 'enchant' directory and install PyEnchant for your distribution.
+There are several prerequisites for the effective use of `rulegen.py`.
+The tool utilizes Enchant spell-checking library to interface with a number of spell-checking engines such as Aspell, MySpell, etc.
+You must install these tools prior to use. It is also critical to install dictionaries for whatever spell-checking engine you end up using (alternatively it is possible to use a custom wordlist).
+At last, I have bundled PyEnchant for convenience which should interface directly with Enchant's shared libraries; however, should there be any issues, simply remove the bundled 'enchant' directory and install PyEnchant for your distribution.
 
 For additional details on specific Hashcat rule syntax see [Hashcat Rule Based Attack](http://hashcat.net/wiki/doku.php?id=rule_based_attack).
 
 Analyzing a Single Password
 -------------------------------
 
-The most basic use of `rulegen.py` involves analysis of a single password to automatically detect rules. Let's detect rules and potential source word used to generate a sample password `P@55w0rd123`:
+The most basic use of `rulegen.py` involves analysis of a single password to automatically detect rules.
+Let's detect rules and potential source word used to generate a sample password `P@55w0rd123`:
 
     $ python rulegen.py --verbose --password P@55w0rd123
                            _ 
@@ -507,7 +547,8 @@ Processing password files is covered in a section below; however, let's first di
 Spell-checking provider
 ---------------------------
 
-Notice that we are using the `aspell` Enchant module for source word detection. The exact spell-checking engine can be changed using the `--provider` flag as follows:
+Notice that we are using the `aspell` Enchant module for source word detection.
+The exact spell-checking engine can be changed using the `--provider` flag as follows:
 
     $ python rulegen.py --verbose --provider myspell --password P@55w0rd123 -q
     [*] Using Enchant 'myspell' module. For best results please install
@@ -531,7 +572,8 @@ By specifying different source words you can have a lot of fun experimenting wit
 Defining Custom Dictionary
 ------------------------------
 
-Inevitably you will come across a point where generating rules using the standard spelling-engine wordlist is no longer sufficient. You can specify a custom wordlist using the `--wordlist` flag. This is particularly useful when reusing source words from a previous analysis session:
+Inevitably you will come across a point where generating rules using the standard spelling-engine wordlist is no longer sufficient.
+You can specify a custom wordlist using the `--wordlist` flag. This is particularly useful when reusing source words from a previous analysis session:
 
     $ python rulegen.py -q --verbose --wordlist rockyou.txt --password 1pa55w0rd1
     [*] Using Enchant 'Personal Wordlist' module. For best results please install
@@ -544,7 +586,8 @@ Custom wordlist can be particularly useful when using not normally found words s
 Generating Suboptimal Rules and Words
 -----------------------------------------
 
-While `rulegen.py` attempts to generate and record only the best source words and passwords, there may be cases when you are interested in more results. Use `--morewords` and `--morerules` flags to generate words and rules which may exceed optimal edit distance:
+While `rulegen.py` attempts to generate and record only the best source words and passwords, there may be cases when you are interested in more results.
+Use `--morewords` and `--morerules` flags to generate words and rules which may exceed optimal edit distance:
 
     $ python rulegen.py -q --verbose --password '$m0n3y$' --morerules --morewords
     [*] Using Enchant 'aspell' module. For best results please install
@@ -556,12 +599,15 @@ While `rulegen.py` attempts to generate and record only the best source words an
     [+] many => ^$ sa0 i43 $$ => $m0n3y$
     [+] Mooney => sM$ o1m so0 se3 $$ => $m0n3y$
 
-It is possible to further expand generated words using `--maxworddist` and `--maxwords` flags. Similarly, you can produce more rules using `--maxrulelen` and `--maxrules` flags.
+It is possible to further expand generated words using `--maxworddist` and `--maxwords` flags.
+Similarly, you can produce more rules using `--maxrulelen` and `--maxrules` flags.
 
 Disabling Advanced Engines
 ------------------------------
 
-`rulegen.py` includes a number of advanced engines to generate better quality words and rules. It is possible to disable them to observe the difference (or if they are causing issues) using `--simplewords` and `--simplerules` flags. Let's observe how both source words and rules change with these flags on:
+`rulegen.py` includes a number of advanced engines to generate better quality words and rules.
+It is possible to disable them to observe the difference (or if they are causing issues) using `--simplewords` and `--simplerules` flags.
+Let's observe how both source words and rules change with these flags on:
 
     $ python rulegen.py -q --verbose --password '$m0n3y$' --simplewords --simplerules
     [*] Using Enchant 'aspell' module. For best results please install
@@ -574,12 +620,14 @@ Disabling Advanced Engines
     [+] mangy => i0$ o20 o43 i6$ => $m0n3y$
     [+] manky => i0$ o20 o43 i6$ => $m0n3y$
 
-Notice the quality of generated words and rules was reduced significantly with words like 'manky' having less relationship to the actual source word 'money'. At the same time, generated rules were reduced to simple insertions, deletions and replacements.
+Notice the quality of generated words and rules was reduced significantly with words like 'manky' having less relationship to the actual source word 'money'.
+At the same time, generated rules were reduced to simple insertions, deletions and replacements.
 
 Processing password lists
 -----------------------------
 
-Now that you have mastered all of the different flags and switches, we can attempt to generate words and rules for a collection of passwords. Let's generate a text file `korelogic.txt` containing the following fairly complex test passwords:
+Now that you have mastered all of the different flags and switches, we can attempt to generate words and rules for a collection of passwords.
+Let's generate a text file `korelogic.txt` containing the following fairly complex test passwords:
 
     &~defcon
     '#(4)\
@@ -637,19 +685,24 @@ Now let's observe `rulegen.py` analysis by simply specifying the password file a
     [+] antelope - 1 (0.00%)
     [+] xxxv - 1 (0.00%)
 
-Using all default settings we were able to produce several high quality rules. The application displays some basic Top 10 rules and words statistics. All of the generated rules and words are saved using basename 'analysis' by default:
+Using all default settings we were able to produce several high quality rules.
+The application displays some basic Top 10 rules and words statistics.
+All of the generated rules and words are saved using basename 'analysis' by default:
 
 * analysis.word - unsorted and ununiqued source words
 * analysis-sorted.word - occurrence sorted and unique source words
 * analysis.rule - unsorted and ununiqued rules
 * analysis-sorted.rule - occurrence sorted and unique rules
 
-Notice that several passwords such as '#(4)\ and '&a123456 were skipped because they do not have sufficient characteristics to be processed. Other than alpha character count, the program will skip all numeric passwords and passwords containing non-ASCII characters. The latter is due to a bug in the Enchant engine which I hope to fix in the future thus allowing word processing of many languages.
+Notice that several passwords such as '#(4)\ and '&a123456 were skipped because they do not have sufficient characteristics to be processed.
+Other than alpha character count, the program will skip all numeric passwords and passwords containing non-ASCII characters.
+The latter is due to a bug in the Enchant engine which I hope to fix in the future thus allowing word processing of many languages.
 
 Specifying output basename
 ------------------------------
 
-As previously mentioned `rulegen.py` saves output files using the 'analysis' basename by default. You can change file basename with the `--basename` or `-b` flag as follows:
+As previously mentioned `rulegen.py` saves output files using the 'analysis' basename by default.
+You can change file basename with the `--basename` or `-b` flag as follows:
 
     $ python rulegen.py korelogic.txt -q -b korelogic
     [*] Using Enchant 'aspell' module. For best results please install
@@ -663,14 +716,19 @@ As previously mentioned `rulegen.py` saves output files using the 'analysis' bas
 Debugging rules
 --------------------
 
-There may be situations where you run into issues generating rules for the Hashcat password cracker. `rulegen.py` includes the `--hashcat` flag to validate generated words and rules using hashcat itself running in --stdout mode. In order for this mode to work correctly, you must download the latest version of hashcat-cli and edit the `HASHCAT_PATH` variable in the source. For example, at the time of this writing I have placed the hashcat-0.## folder in the PACK directory and defined `HASHCAT_PATH` as 'hashcat-0.##/'.
+There may be situations where you run into issues generating rules for the Hashcat password cracker.
+`rulegen.py` includes the `--hashcat` flag to validate generated words and rules using hashcat itself running in --stdout mode.
+In order for this mode to work correctly, you must download the latest version of hashcat-cli and edit the `HASHCAT_PATH` variable in the source.
+For example, at the time of this writing I have placed the hashcat-0.## folder in the PACK directory and defined `HASHCAT_PATH` as 'hashcat-0.##/'.
 
-You can also observe the inner workings of the rule generation engine with the `--debug` flag. Don't worry about messages of certain rule failings, this is the result of the halting problem solver trying to find an optimal and valid solution.
+You can also observe the inner workings of the rule generation engine with the `--debug` flag.
+Don't worry about messages of certain rule failings, this is the result of the halting problem solver trying to find an optimal and valid solution.
 
 Conclusion
 ==============
 
-While this guide introduces a number of methods to analyze passwords, reverse rules and generate masks, there are a number of other tricks that are waiting for you to discover. I would be excited if you told me about some unusual use or suggestions for any of the covered tools.
+While this guide introduces a number of methods to analyze passwords, reverse rules and generate masks, there are a number of other tricks that are waiting for you to discover.
+I would be excited if you told me about some unusual use or suggestions for any of the covered tools.
 
 Happy Cracking!
 
